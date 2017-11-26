@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        ul{
+            list-style:none;
+        }
+        #box{
+            width: 484px;
+            height: 500px;
+            margin:100px auto;
+            position: relative;
+        }
+        input{
+            width: 400px;
+            height: 30px;
+            float: left;
+            outline-style:none;
+            text-indent:10px;
+        }
+        button{
+            background-color: #3385ff;
+            height: 34px;
+            width: 80px;
+            border:none;
+            color: #fff;
+            float: left;
+            outline-style:none;
+        }
+        .arrlength{
+            border:none;
+        }
+        .active{
+            background-color: #ddd;
+        }
+        ul{
+            width: 100%;
+            position: absolute;
+            top:34px;
+            left:0;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            border-top:none;
+        }
+        li{
+            text-indent:10px;
+            height: 30px;
+            line-height:30px;
+        }
+    </style>
+</head>
+<body>
+   <div id="box">
+       <input type="text" @keyup="btn($event)" v-model="text" @keydown.down="selected()" @keydown.up="selectedup()">
+       <button>百度一下</button>
+       <ul :class="{arrlength:!arr.length}">
+           <li v-for="(item,index) in arr" v-text="item" :class="{active:indexa===index}" @mouseenter="remove(index)"></li>
+       </ul>
+   </div>
+</body>
+<script src="https://cdn.bootcss.com/vue/2.5.8/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/vue-resource/1.3.4/vue-resource.js"></script>
+<script>
+    var vm=new Vue({
+        el:'#box',
+        data:{
+            text:'',
+            arr:[],
+            indexa:-1
+//            bg:''
+        },
+        methods:{
+            btn:function(ev){
+                if(ev.keyCode===8){
+                    this.indexa=-1;
+                }
+                if(ev.keyCode!==38&&ev.keyCode!==40){
+                    this.$http.jsonp('https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?',
+                        {//请求参数
+                            params: {
+                                wd:this.text
+                            },
+                            jsonp:'cb'
+                        }).then(function(a){
+                        this.arr=a.data.s.slice(0,6);
+                    },function(a){
+                    console.log(a.status)
+                    })
+                }
+            },
+            selected:function(){
+                this.indexa++;
+                this.indexa=this.indexa>5?0:this.indexa;
+                this.text=this.arr[this.indexa]
+            },
+            selectedup:function(){
+                this.indexa--;
+                this.indexa=this.indexa<0?5:this.indexa;
+                this.text=this.arr[this.indexa]
+            },
+            remove:function(index){
+                this.indexa=index;
+            }
+        }
+    })
+</script>
+</html>
