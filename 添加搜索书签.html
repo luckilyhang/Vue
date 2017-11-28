@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>书签</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        #box{
+            width: 70%;
+            margin:0 auto;
+        }
+        .add{
+            margin-top:10px;
+        }
+        span{
+            margin-right:100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="box">
+        <table class="table table-striped">
+            <thead>
+            <tr >
+                <th>编号</th>
+                <th>书名</th>
+                <th>作者</th>
+                <th>价格</th>
+                <th>删除</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(item,index) in arr">
+                <td v-text="index+1"></td>
+                <td v-text="item.book"></td>
+                <td v-text="item.author"></td>
+                <td v-text="item.price"></td>
+                <td>
+                    <button class="btn btn-danger" @click="delArr(index)">删除</button>
+                </td>
+                <td>
+                    <!--模态框-->
+                    <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#myModal" @click="addStep(index)">
+                       编辑
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">修改信息</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label>书名</label><input type="text" placeholder="请输入书名" v-model="msgBook" class="form-control">
+                                        <label>作者</label><input type="text" placeholder="请输入作者" v-model="msgAuthor" class="form-control" >
+                                        <label>价格</label><input type="text" placeholder="请输价格"  v-model="msgPrice" class="form-control" >
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" @click="editor()">保存</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+            <span class="pull-right">价格:{{total}}</span>
+            <div class="clearfix"></div>
+            <h4>添加</h4>
+            <hr>
+            <div class="form-group">
+                <label>书名</label><input type="text" placeholder="请输入书名" v-model="book"  class="form-control">
+                <label>作者</label><input type="text" placeholder="请输入作者" v-model="author" class="form-control" >
+                <label>价格</label><input type="text" placeholder="请输价格" v-model="price" class="form-control" >
+                <button  class="btn btn-info btn-block add" @click="addBook()" >添加</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/1.9.0/jquery.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/2.0.4/js/bootstrap.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.5.0/vue.min.js"></script>
+</html>
+<script>
+    var vm=new Vue({
+        el:'#box',
+        data:{
+            book:'',
+            price:'',
+            author:'',
+            total:0,
+            msgBook:'',
+            msgPrice:'',
+            msgAuthor:'',
+            flag:0,
+            arr:[
+                {
+                    id:1,
+                    book:'三国演义',
+                    author:'罗贯中',
+                    price:35
+                } ,  {
+                    id:2,
+                    book:'水浒传',
+                    author:'施耐庵',
+                    price:26
+                },   {
+                    id:3,
+                    book:'西游记',
+                    author:'吴承恩',
+                    price:18
+                },   {
+                    id:4,
+                    book:'红楼梦',
+                    author:'曹雪芹',
+                    price:28
+                }
+
+
+            ]
+
+        },
+        // 页面加载计算总价
+        created:function(){
+            this.tota();
+        },
+        methods:{
+            // 计算总价
+            tota:function(){
+                this.total=0;
+                for(var i=0;i<this.arr.length;i++){
+                    this.total+=Number(this.arr[i].price);
+                }
+            },
+//            添加
+            addBook:function(){
+                if(this.book==''||this.price==''||this.author==''){
+                    alert('请输入完整内容');
+                    return;
+                }
+                this.arr.push({
+                    book:this.book,
+                    price:this.price,
+                    author:this.author
+                });
+                this.book='';
+                this.price='';
+                this.author='';
+//                计算总价
+                this.tota();
+            },
+            // 删除列表
+            delArr:function(index){
+                this.id=this.arr.splice([index],1);
+                console.log(index);
+                this.tota();
+            },
+            // 列表同步到模态框
+            addStep:function(index){
+                 this.flag= index;
+                this.msgBook = this.arr[index].book;
+                this.msgAuthor=this.arr[index].author;
+               this.msgPrice =this.arr[index].price;
+//               console.log(index);
+            },
+//             编辑模态框同步到列表
+             editor:function(){
+                this.arr[this.flag].book=this.msgBook;
+                 this.arr[this.flag].author=this.msgAuthor;
+                 this.arr[this.flag].price=this.msgPrice;
+                 this.tota();
+//                 this.flag=-1;
+                    console.log(this.flag);
+             }
+
+
+        }
+    })
+</script>
